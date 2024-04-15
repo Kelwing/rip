@@ -164,7 +164,7 @@ impl Http {
                                     .await?;
                                     StreamingOrLocal::Local(Box::new(new_body))
                                 } else {
-                                    lock.remove()?;
+                                    lock.remove().ok();
                                     body_to_streaming_or_local(response.bytes_stream())
                                 };
                                 Ok(make_response(
