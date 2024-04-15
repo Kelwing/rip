@@ -164,7 +164,9 @@ impl Http {
                                     .await?;
                                     StreamingOrLocal::Local(Box::new(new_body))
                                 } else {
-                                    lock.remove().ok();
+                                    if let Err(e) = lock.remove() {
+                                        tracing::warn!("failed to remove cache entry: {}", e);
+                                    }
                                     body_to_streaming_or_local(response.bytes_stream())
                                 };
                                 Ok(make_response(
