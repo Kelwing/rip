@@ -196,7 +196,9 @@ impl Http {
                     let new_body = fill_cache_async(&new_policy, &final_url, body, lock).await?;
                     StreamingOrLocal::Local(Box::new(new_body))
                 } else {
-                    lock.remove()?;
+                    if lock.remove().is_err() {
+                        tracing::warn!("failed to remove cache entry");
+                    }
                     body_to_streaming_or_local(body)
                 };
                 Ok(make_response(parts, new_body, CacheStatus::Miss, final_url))
